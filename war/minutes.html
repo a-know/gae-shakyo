@@ -1,0 +1,138 @@
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+	<title>議事録</title>
+</head>
+<body>
+<div id="auth"></div>
+<h1>議事録</h1>
+<div><input type="button" id="deleteMinutes" value="TSVに変換して削除" /></div>
+<div id="content"></div>
+
+<h2>メモを追加する</h2>
+
+<form id="form" method="post" action="dummy">
+	<p><input type="text" size="100" id="memo" name="memo" /></p>
+
+	<p><input type="submit" /></p>
+</form>
+
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/_ah/channel/jsapi"></script>
+<script type="text/javascript">
+	var minutes;
+
+	$(function(){
+		//show loginURL or logoutURL
+		(function auth(){
+			var onError = function(jqXHR, textStatus, errorThrown){
+				alert('error');
+			};
+			var onSuccess = function(data, textStatus, jqXHR){
+				$('#auth a').remove();
+				var a = $('<a/>').appendTo('#auth');
+				if(data['loggedIn'] === true){
+					a.attr('href', data['logoutURL']).text('ログアウト');
+				}else{
+					a.attr('href', data['loginURL']).text('ログイン');
+				}
+			};
+			$.ajax({
+				url: '/auth', type: 'get'
+			}).success(onSuccess).error(onError);
+		})();
+		//get minutes's key by param
+		var href = window.location.href;
+		if(href.indexOf('?minutes=') < 0){
+			//if no params, then open minutes list
+			window.location.href = 'index.html';
+			return;
+		}
+		minutes = href.split('?minutes=')[1];
+
+		//get list by ajax and draw
+		function refresh(){
+			var onError = function(jqXHR, textStatus, errorThrown){
+				alert('error');
+			};
+			var onSuccess = function(data, textStatus, jqXHR){
+				$('#content ul').remove();
+				var ul = $('<ul/>');
+				$.each(data, function(_, memo) {//_の部分は本来index
+					var li = $('<li/>')
+						.text(memo['memo'] + '(' + new Date(memo['createdAt']) + ')');
+					$('<img />')
+						.prependTo(li).attr('src', 'images?user=' + memo['author']['userId']);//(memo['author'])がUserオブジェクト。(memo['author'])['userId']で、そのUserオブジェクトのuserIdを取得。
+					li.appendTo(ul);
+				});
+				ul.appendTo('#content');
+				//auto redraw by 10sec.
+				//setTimeout(refresh, 10000);
+			};
+			$.ajax({
+				url: '/memo?minutes='+minutes, type: 'get'
+			}).success(onSuccess).error(onError);
+		}
+		refresh();
+
+		//post by ajax
+		var submit = function(event){
+			var memo = $('#memo');
+			if(!memo.val()){
+				memo.focus();
+				return false;
+			}
+			var onError = function(jqXHR, textStatus, errorThrown){
+				if(jqXHR['status'] === 401){
+					alert('ログインしていないユーザは議事録を作成できません。')
+				}else{
+					alert('error');
+				}
+			};
+			var onSuccess = function(data, textStatus, jqXHR){
+				alert('success');
+				memo.val('');
+			};
+			$.ajax({
+				url: '/memo', type: 'post', data: {memo:memo.val(), minutes:minutes}
+			}).success(onSuccess).error(onError);
+			return false;
+		};
+		//set function 'submit' to form's submit handler.
+		$('#form').submit(submit);
+		//setting channel service
+		$.ajax({url: '/channel', type: 'get', data: { minutes: minutes }})
+			.success(function(data) {
+				var channel = new goog.appengine.Channel(data['token']);
+				var socket = channel.open();
+				socket.onmessage = function(message){//ChannelControllerのpushMemoにより実行
+					var memo = $.parseJSON(message['data']);//'data'は固定
+					$('<li/>')
+						.appendTo('#content ul')
+						.text(memo['memo'] + '(' + new Date(memo['createdAt']) + ')');
+					$('#<img />')
+						.prependTo(li).attr('src', 'images?user=' + memo['author']['userID']);
+				};
+			});
+
+		//議事録の削除
+		var deleteMinutes = function(event){
+			var onError = function(jqXHR, textStatus, errorThrown){
+				if(jqXHR['status'] === 403 || jqXHR['status'] === 401){
+					alert('議事録の作成者以外は削除できません');
+				}else{
+					alert('error');
+				}
+			};
+			var onSuccess = function(data, textStatus, jqXHR){
+				alert('TSVをダウンロードするURLがメールで送信されました');
+				window.location.href = 'index.html';
+			};
+			$.ajax({url: '/minutes', type: 'get', data: {delete: minutes}})
+				.success(onSuccess).error(onError);
+		};
+		$('#deleteMinutes').click(deleteMinutes);
+	});
+</script>
+</body>
+</html>
