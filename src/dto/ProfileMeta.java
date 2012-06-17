@@ -1,6 +1,6 @@
 package dto;
 
-//@javax.annotation.Generated(value = { "slim3-gen", "@VERSION@" }, date = "2012-06-08 08:16:09")
+//@javax.annotation.Generated(value = { "slim3-gen", "@VERSION@" }, date = "2012-06-17 01:21:15")
 /** */
 public final class ProfileMeta extends org.slim3.datastore.ModelMeta<dto.Profile> {
 

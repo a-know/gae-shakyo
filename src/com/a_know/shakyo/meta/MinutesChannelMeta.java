@@ -1,6 +1,6 @@
 package com.a_know.shakyo.meta;
 
-//@javax.annotation.Generated(value = { "slim3-gen", "@VERSION@" }, date = "2012-06-07 11:10:06")
+//@javax.annotation.Generated(value = { "slim3-gen", "@VERSION@" }, date = "2012-06-17 01:21:15")
 /** */
 public final class MinutesChannelMeta extends org.slim3.datastore.ModelMeta<com.a_know.shakyo.model.MinutesChannel> {
 
