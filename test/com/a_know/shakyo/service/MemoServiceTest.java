@@ -95,7 +95,7 @@ public class MemoServiceTest extends AppEngineTestCase {
     }
 
     @Test
-    public void 議事録のメモ追加後にメモ件数を加算するタスクが追加される(){
+    public void 議事録のメモ追加後にメモ件数を加算するタスクと形態素解析用のタスクが追加される(){
         Key minutesKey = MinutesService.put("テスト用議事録１");
 
         int before = tester.tasks.size();
@@ -108,5 +108,6 @@ public class MemoServiceTest extends AppEngineTestCase {
         task = tester.tasks.get(1);
         assertThat("形態素解析するタスクのURL", task.getUrl(), is("/tq/Yahoo"));
         assertThat("形態素解析するタスクのパラメータ", task.getBody(), is("memoKey=" + Datastore.keyToString(memoKey)));
+        assertThat("形態素解析する多数のqueue名", task.getQueueName(), is("parse"));
     }
 }

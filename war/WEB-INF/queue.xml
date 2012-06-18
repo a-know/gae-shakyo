@@ -8,4 +8,9 @@
     <rate>10/s</rate>
     <bucket-size>10</bucket-size>
   </queue>
+  <queue>
+    <name>parse</name>
+    <rate>1/s</rate>
+    <target>dynamiclow</target>
+  </queue>
 </queue-entries>

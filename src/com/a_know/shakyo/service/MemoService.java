@@ -29,7 +29,7 @@ public class MemoService {
 
         Queue queue = QueueFactory.getDefaultQueue();
         queue.add(TaskOptions.Builder.withUrl("/tq/IncrementMemoCount").param("minutesKey", Datastore.keyToString(minutesKey)));
-        queue.add(TaskOptions.Builder.withUrl("/tq/Yahoo").param("memoKey", Datastore.keyToString(memo.getKey())));
+        QueueFactory.getQueue("parse").add(TaskOptions.Builder.withUrl("/tq/Yahoo").param("memoKey", Datastore.keyToString(memo.getKey())));
 
         Memcache.delete(minutesKey);
 
