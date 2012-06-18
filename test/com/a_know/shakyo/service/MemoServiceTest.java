@@ -99,11 +99,14 @@ public class MemoServiceTest extends AppEngineTestCase {
         Key minutesKey = MinutesService.put("テスト用議事録１");
 
         int before = tester.tasks.size();
-        MemoService.put(minutesKey, "メモ１");
+        Key memoKey = MemoService.put(minutesKey, "メモ１");
         int after = tester.tasks.size();
-        assertThat("タスクが１件増える", after, is(before + 1));
+        assertThat("タスクが2件増える", after, is(before + 2));
         TaskQueueAddRequest task = tester.tasks.get(0);
-        assertThat(task.getUrl(), is("/tq/IncrementMemoCount"));
-        assertThat(task.getBody(), is("minutesKey=" + Datastore.keyToString(minutesKey)));
+        assertThat("メモ件数を加算するタスクのURL",task.getUrl(), is("/tq/IncrementMemoCount"));
+        assertThat("メモ件数を加算するタスクのパラメータ",task.getBody(), is("minutesKey=" + Datastore.keyToString(minutesKey)));
+        task = tester.tasks.get(1);
+        assertThat("形態素解析するタスクのURL", task.getUrl(), is("/tq/Yahoo"));
+        assertThat("形態素解析するタスクのパラメータ", task.getBody(), is("memoKey=" + Datastore.keyToString(memoKey)));
     }
 }

@@ -21,6 +21,12 @@
 			<input type="submit" />
 		</p>
 	</form>
+	<h2>検索</h2>
+	<form id="searchForm" method="post" action="dummy">
+		<p><input type="text" size="50" id="query" name="query" /></p>
+		<p><input type="submit" /></p>
+	</form>
+	<div id="searchResults"></div>
 
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery.upload-1.0.2.min.js"></script>
@@ -109,6 +115,35 @@
 				});
 		};
 		$('#uploadButton').click(upload);
+
+		//検索する
+		var search = function(event){
+			var query = $('#query');
+			if(!query.val()){
+				query.focus();
+				return false;
+			}
+			var onError = function(jqXHR, textStatus, errorThrown){
+				alert('error');
+			};
+			var onSuccess = function(data, textStatus, jqXHR){
+				$('#searchResults ul').remove();
+				var ul = $('<ul/>');
+				$.each(data, function(_, memo){
+					var li = $('<li/>')
+								.text(memo['memo'] + '(' + new Date(memo['createdAt']) + ')');
+					$('<img/>')
+					.prependTo(li).attr('src', 'images?user=' + memo['author']['userId']);
+					li.appendTo(ul);
+				});
+				ul.appendTo('#searchResults');
+			};
+			$.ajax({
+				url: '/search', type: 'post', data: {query:query.val()}
+			}).success(onSuccess).error(onError);
+			return false;
+		}
+		$('#searchForm').submit(search);s
 	});
 </script>
 </body>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResultSet xsi:schemaLocation="urn:yahoo:jp:jlp http://jlp.yahooapis.jp/MAService/V1/parseResponse.xsd">
+	<ma_result>
+		<total_count>8</total_count>
+		<filtered_count>4</filtered_count>
+		<word_list>
+			<word><surface>本日</surface><reading>ほんじつ</reading><pos>名詞</pos></word>
+			<word><surface>晴天</surface><reading>せいてん</reading><pos>名詞</pos></word>
+			<word><surface>本日</surface><reading>ほんじつ</reading><pos>名詞</pos></word>
+			<word><surface>晴天</surface><reading>せいてん</reading><pos>名詞</pos></word>
+		</word_list>
+	</ma_result>
+</ResultSet>

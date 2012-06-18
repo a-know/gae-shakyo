@@ -26,10 +26,12 @@ public class MemoService {
         memo.setCreatedAt(new Date());
         memo.setAuthor(UserServiceFactory.getUserService().getCurrentUser());
         Datastore.put(memo);
-        Memcache.delete(minutesKey);
 
         Queue queue = QueueFactory.getDefaultQueue();
         queue.add(TaskOptions.Builder.withUrl("/tq/IncrementMemoCount").param("minutesKey", Datastore.keyToString(minutesKey)));
+        queue.add(TaskOptions.Builder.withUrl("/tq/Yahoo").param("memoKey", Datastore.keyToString(memo.getKey())));
+
+        Memcache.delete(minutesKey);
 
         return memo.getKey();
     }
