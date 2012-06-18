@@ -13,6 +13,8 @@ import com.a_know.shakyo.meta.MemoMeta;
 import com.a_know.shakyo.model.Memo;
 import com.a_know.shakyo.service.MemoService;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.UserServiceFactory;
 
 public class MemoController extends Controller {
@@ -44,6 +46,9 @@ public class MemoController extends Controller {
         response.setContentType("application/json");
         response.getWriter().write(MemoMeta.get().modelsToJson(list));
         response.flushBuffer();
+
+        //アクセスカウント用に、access-logキューにpullタスクを追加
+        QueueFactory.getQueue("access-log").add(TaskOptions.Builder.withMethod(TaskOptions.Method.PULL).param("minutesKey", Datastore.keyToString(minutesKey)));
 
         return null;
     }

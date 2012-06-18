@@ -13,4 +13,8 @@
     <rate>1/s</rate>
     <target>dynamiclow</target>
   </queue>
+  <queue>
+    <name>access-log</name>
+    <mode>pull</mode>
+  </queue>
 </queue-entries>

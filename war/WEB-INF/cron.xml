@@ -6,4 +6,10 @@
 		<schedule>every day 00:00</schedule>
 		<timezone>Asia/Tokyo</timezone>
 	</cron>
+	<cron>
+		<url>/cron/accessCount</url>
+		<description>calculate access count</description>
+		<schedule>every 1 hours</schedule>
+		<target>dynamiclow</target>
+	</cron>
 </cronentries>

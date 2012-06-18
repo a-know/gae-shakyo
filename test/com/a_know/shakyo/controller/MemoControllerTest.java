@@ -17,6 +17,7 @@ import com.a_know.shakyo.meta.MemoMeta;
 import com.a_know.shakyo.model.Memo;
 import com.a_know.shakyo.service.MinutesService;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.taskqueue.TaskQueuePb.TaskQueueAddRequest;
 import com.google.apphosting.api.ApiProxy;
 
 public class MemoControllerTest extends ControllerTestCase {
@@ -140,5 +141,20 @@ public class MemoControllerTest extends ControllerTestCase {
 
         assertThat("MemoControllerのインスタンスが使用される", tester.getController(), instanceOf(MemoController.class));
         assertThat("レスポンスコードが400", tester.response.getStatus(), is(HttpServletResponse.SC_BAD_REQUEST));
+    }
+    @Test
+    public void GETリクエストのときにアクセスカウンタ用のタスクが追加される() throws Exception{
+        Key minutesKey = MinutesService.put("テスト用議事録1");
+
+        int before = tester.tasks.size();
+        tester.param("minutes", Datastore.keyToString(minutesKey));
+        tester.start(PATH);
+
+        int after = tester.tasks.size();
+
+        assertThat("Taskが一件追加される", after, is(before + 1));
+        TaskQueueAddRequest task = tester.tasks.get(0);
+        assertThat("access-logキューにTaskが追加される", task.getQueueName(), is("access-log"));
+        assertThat("TaskにminutesKeyパラメータが設定される", task.getBody().startsWith("minutesKey="), is(true));
     }
 }
