@@ -1,0 +1,63 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ログ</title>
+</head>
+<body>
+<h1>ログ</h1>
+
+<div id="content"></div>
+
+<div><input type="button" value="next" id="nextButton" /></div>
+
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+$(function() {
+	var offset; //最後に取得したログのオフセット
+
+	//Ajaxで一覧を取得し、再描画する
+	function fetch() {
+		var onError = function(jqXHR, textStatus, errorThrown){
+			alert('error');
+		};
+
+		var onSuccess = function(data, textStatus, jqXHR){
+			$('#content ul').remove();
+			var ul = $('<ul/>');
+
+			$.each(data, function(_, log){
+				var li = $('<li/>').appendTo(ul);
+				var combined = $('<span class="combined"/>').appendTo(li).text(log['combined']);
+				var logLinesUl = $('<ul/>').appendTo(li);
+				$.each(log['logLines'], function(index, logLine) {
+					var logLineLi = $('<li/>').appendTo(logLinesUl).text(logLine);
+					var level = log['logLevels'][index];
+					if(level === 'FATAL' || level === 'ERROR'){
+						$(logLineLi).css('color', 'red');
+					}else if(level === 'WARN'){
+						$(logLineLi).css('color', 'orange');
+					}else if(lvel === 'INFO'){
+						$(logLineLi).css('color', 'blue');
+					}else{
+						$(logLineLi).css('color', 'green');
+					}
+				});
+				offset = log['offset'];
+			});
+			ul.appendTo('#content');
+		};
+		alert('start');
+		//受信したoffsetがあれば、その値をサーバに渡す。
+		var data = {};
+		if(offset) data['offset'] = offset;
+		$.ajax({
+			url:'/log', type:'get', data:data
+		}).success(onSuccess).error(onError);
+	}
+	//起動直後に一度実行する。
+	fetch();
+	$('#nextButton').click(fetch);
+});
+</script>
+</body>
+</html>
